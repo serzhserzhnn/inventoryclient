@@ -1,9 +1,8 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "http://localhost:8087/inventory",
+    baseURL: "http://localhost:8081/api",
     headers: {
-        "Access-Control-Allow-Origin": "http://localhost:3000",
         "Content-type": "application/json"
     }
 });

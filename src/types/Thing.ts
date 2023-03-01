@@ -3,7 +3,7 @@ export default interface IThingData{
     name: string,
     description: string//,
     // location: string,
-    // category: number,
+    category: number
     // quantity?: number,
     // dateStart?: string,
     // dateEnd?: string

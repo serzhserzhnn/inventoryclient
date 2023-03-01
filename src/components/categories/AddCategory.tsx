@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
-import CategoryDataService from "../services/CategoryService";
-import ICategoryData from '../types/Category';
+import CategoryDataService from "../../services/CategoryService";
+import ICategoryData from '../../types/Category';
 
 const AddCategory: React.FC = () => {
     const initialCategoryState = {

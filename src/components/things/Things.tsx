@@ -1,8 +1,8 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate, Link} from 'react-router-dom';
 
-import ThingsDataService from "../services/ThingsService";
-import IThingsData from '../types/Thing';
+import ThingsDataService from "../../services/ThingsService";
+import IThingsData from '../../types/Thing';
 
 const Things: React.FC = () => {
     const {id} = useParams();

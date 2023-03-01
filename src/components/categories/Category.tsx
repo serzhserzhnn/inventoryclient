@@ -1,25 +1,24 @@
-import React, {useState, useEffect, ChangeEvent} from "react";
-import {useParams, useNavigate} from 'react-router-dom';
+import React, { useState, useEffect, ChangeEvent } from "react";
+import { useParams, useNavigate } from 'react-router-dom';
 
-import ThingDataService from "../services/ThingsService";
-import IThingData from "../types/Thing";
+import CategoryDataService from "../../services/CategoryService";
+import ICategoryData from "../../types/Category";
 
-const Thing: React.FC = () => {
-    const {id} = useParams();
+const Category: React.FC = () => {
+    const { id }= useParams();
     let navigate = useNavigate();
 
-    const initialThingState = {
+    const initialCategoryState = {
         id: null,
-        name: "",
-        description: ""
+        name: ""
     };
-    const [currentThing, setCurrentThing] = useState<IThingData>(initialThingState);
+    const [currentCategory, setCurrentCategory] = useState<ICategoryData>(initialCategoryState);
     const [message, setMessage] = useState<string>("");
 
-    const getThing = (id: string) => {
-        ThingDataService.get(id)
+    const getCategory = (id: string) => {
+        CategoryDataService.get(id)
             .then((response: any) => {
-                setCurrentThing(response.data);
+                setCurrentCategory(response.data);
                 console.log(response.data);
             })
             .catch((e: Error) => {
@@ -29,22 +28,21 @@ const Thing: React.FC = () => {
 
     useEffect(() => {
         if (id)
-            getThing(id);
+            getCategory(id);
     }, [id]);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = event.target;
-        setCurrentThing({...currentThing, [name]: value});
+        const { name, value } = event.target;
+        setCurrentCategory({ ...currentCategory, [name]: value });
     };
 
     const updatePublished = (status: boolean) => {
         var data = {
-            id: currentThing.id,
-            name: currentThing.name,
-            description: currentThing.description
+            id: currentCategory.id,
+            name: currentCategory.name
         };
 
-        ThingDataService.update(currentThing.id, data)
+        CategoryDataService.update(currentCategory.id, data)
             .then((response: any) => {
                 console.log(response.data);
                 setMessage("The status was updated successfully!");
@@ -54,11 +52,11 @@ const Thing: React.FC = () => {
             });
     };
 
-    const updateThing = () => {
-        ThingDataService.update(currentThing.id, currentThing)
+    const updateCategory = () => {
+        CategoryDataService.update(currentCategory.id, currentCategory)
             .then((response: any) => {
                 console.log(response.data);
-                setMessage("The Thing was updated successfully!");
+                setMessage("The Category was updated successfully!");
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -66,11 +64,10 @@ const Thing: React.FC = () => {
     };
 
     const deleteCategory = () => {
-        ThingDataService.remove(currentThing.id)
+        CategoryDataService.remove(currentCategory.id)
             .then((response: any) => {
                 console.log(response.data);
-                //navigate("/things");
-                navigate(-1);
+                navigate("/categories");
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -79,18 +76,18 @@ const Thing: React.FC = () => {
 
     return (
         <div>
-            {currentThing ? (
+            {currentCategory ? (
                 <div className="edit-form">
-                    <h4>Thing</h4>
+                    <h4>Category</h4>
                     <form>
                         <div className="form-group">
-                            <label htmlFor="title">Title</label>
+                            {/*<label htmlFor="name">Title</label>*/}
                             <input
                                 type="text"
                                 className="form-control"
-                                id="title"
-                                name="title"
-                                value={currentThing.name}
+                                id="name"
+                                name="name"
+                                value={currentCategory.name}
                                 onChange={handleInputChange}
                             />
                         </div>
@@ -103,26 +100,20 @@ const Thing: React.FC = () => {
                     <button
                         type="submit"
                         className="badge badge-success"
-                        onClick={updateThing}
+                        onClick={updateCategory}
                     >
                         Update
                     </button>
                     <p>{message}</p>
-                    <br/>
-                    <div>
-                        <label>Наименование: </label>
-                        {currentThing.name}
-                    </div>
-
                 </div>
             ) : (
                 <div>
-                    <br/>
-                    <p>Please click on a Thing...</p>
+                    <br />
+                    <p>Please click on a Category...</p>
                 </div>
             )}
         </div>
     );
 };
 
-export default Thing;
+export default Category;
