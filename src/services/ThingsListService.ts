@@ -1,8 +1,8 @@
 import http from "../http-common3";
 import IThingsData from "../types/Thing";
 
-const getAll = () => {
-    return http.get<Array<IThingsData>>("/things_list");
+const getAll = (user: any) => {
+    return http.get<Array<IThingsData>>(`/things_list?user=${user}`);
 };
 
 const remove = (id: any) => {

@@ -2,9 +2,10 @@ import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate, Link} from 'react-router-dom';
 
 import ThingsDataService from "../../services/ThingsListService";
-import IThingsData from '../../types/Thing';
+import IThingsData from '../../types/ThingList';
+import {getCurrentUser} from "../../services/authservice/auth.service";
 
-const Things: React.FC = () => {
+const ThingsList: React.FC = () => {
     const {id} = useParams();
     let navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const Things: React.FC = () => {
     };
 
     const retrieveThings = () => {
-        ThingsDataService.getAll()
+        ThingsDataService.getAll(currentUser.id)
             .then((response: any) => {
                 setThings(response.data);
                 console.log(response.data);
@@ -44,76 +45,80 @@ const Things: React.FC = () => {
         setCurrentIndex(index);
     };
 
-    if (things.length !== 0)
-        return (
-            <div className="list row">
-                <div className="col-md-8">
-                    <div className="input-group mb-3">
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search by name"
-                            value={searchName}
-                            onChange={onChangeSearchName}
-                        />
-                    </div>
-                </div>
-                <div className="card text-center">
-                    <div className="card-body">
-                        <h5 className="card-title">Add Thing</h5>
-                        {/*<p className="card-text">View all things.</p>*/}
-                        <a href="/thing_add" className="btn btn-primary">Create thing </a>
-                    </div>
-                </div>
-                <div className="col-md-6">
-                    <h4>Things List</h4>
+    const currentUser = getCurrentUser();
 
-                    <table className="table table-dark">
-                        <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">name</th>
-                            <th scope="col">description</th>
-                            <th scope="col">category</th>
-                            <th scope="col">action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {things &&
-                        things.map((thing, index) => (
-                            <tr>
-                                <th scope="row">{thing.id}</th>
-                                <td>{thing.name}</td>
-                                <td>{thing.description}</td>
-                                <td>{thing.category}</td>
-                                <td>
-                                    <Link
-                                        to={"/thing/" + thing.id}
-                                        className="badge badge-warning"
-                                    >
-                                        View
-                                    </Link>
-                                    <Link
-                                        to={"/thing/" + thing.id}
-                                        className="badge badge-warning"
-                                    >
-                                        Edit
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
+    //if (things.length !== 0)
+    return (
+        <div className="list row">
+            <div className="col-md-8">
+                <div className="input-group mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search by name"
+                        value={searchName}
+                        onChange={onChangeSearchName}
+                    />
                 </div>
             </div>
-        );
+            <div className="card text-center">
+                <div className="card-body">
+                    <h5 className="card-title">Add Thing</h5>
+                    {/*<p className="card-text">View all things.</p>*/}
+                    <a href="/thing_add" className="btn btn-primary">Create thing </a>
+                </div>
+            </div>
+            <div className="col-md-6">
+                <h4>Things List</h4>
 
-    else return (<div>
-        <h5>Список пуст.&nbsp;<a href="/things"> Выбрать?</a></h5>
-    </div>)
+                <table className="table table-dark">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">name</th>
+                        <th scope="col">description</th>
+                        <th scope="col">category</th>
+                        <th scope="col">user</th>
+                        <th scope="col">action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {things &&
+                    things.map((thing, index) => (
+                        <tr>
+                            <th scope="row">{thing.id}</th>
+                            <td>{thing.name}</td>
+                            <td>{thing.description}</td>
+                            <td>{thing.category}</td>
+                            <td>{thing.user}</td>
+                            <td>
+                                <Link
+                                    to={"/thing/" + thing.id}
+                                    className="badge badge-warning"
+                                >
+                                    View
+                                </Link>
+                                <Link
+                                    to={"/thing/" + thing.id}
+                                    className="badge badge-warning"
+                                >
+                                    Edit
+                                </Link>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+
+    // else return (<div>
+    //     <h5>Список пуст.&nbsp;<a href="/things"> Выбрать?</a></h5>
+    // </div>)
 };
 
-export default Things;
+export default ThingsList;
 
 function Enter(): React.MouseEventHandler<HTMLInputElement> | undefined {
     throw new Error("Function not implemented.");

@@ -10,7 +10,7 @@ import Thing from "./components/things/Thing";
 import AddCategory from "./components/categories/AddCategory";
 import AddThing from "./components/things/AddThing";
 import ThingsList from "./components/thingslist/ThingsList";
-//
+
 import * as AuthService from "./services/authservice/auth.service";
 import IUser from './types/User';
 
@@ -23,6 +23,7 @@ import BoardModerator from "./components/authentication/BoardModerator";
 import BoardAdmin from "./components/authentication/BoardAdmin";
 
 import EventBus from "./common/EventBus";
+import Charts from "./components/charts/Charts";
 
 const App: React.FC = () => {
     const [showModeratorBoard, setShowModeratorBoard] = useState<boolean>(false);
@@ -59,35 +60,35 @@ const App: React.FC = () => {
                     Inventory Service
                 </Link>
                 <div className="navbar-nav mr-auto">
-                    <li className="nav-item">
-                        <Link to={"/home"} className="nav-link">
-                            Home
-                        </Link>
-                    </li>
+                    {/*<li className="nav-item">*/}
+                    {/*    <Link to={"/home"} className="nav-link">*/}
+                    {/*        Home*/}
+                    {/*    </Link>*/}
+                    {/*</li>*/}
 
-                    {showModeratorBoard && (
-                        <li className="nav-item">
-                            <Link to={"/mod"} className="nav-link">
-                                Moderator Board
-                            </Link>
-                        </li>
-                    )}
+                    {/*{showModeratorBoard && (*/}
+                    {/*    <li className="nav-item">*/}
+                    {/*        <Link to={"/mod"} className="nav-link">*/}
+                    {/*            Moderator Board*/}
+                    {/*        </Link>*/}
+                    {/*    </li>*/}
+                    {/*)}*/}
 
-                    {showAdminBoard && (
-                        <li className="nav-item">
-                            <Link to={"/admin"} className="nav-link">
-                                Admin Board
-                            </Link>
-                        </li>
-                    )}
+                    {/*{showAdminBoard && (*/}
+                    {/*    <li className="nav-item">*/}
+                    {/*        <Link to={"/admin"} className="nav-link">*/}
+                    {/*            Admin Board*/}
+                    {/*        </Link>*/}
+                    {/*    </li>*/}
+                    {/*)}*/}
 
-                    {currentUser && (
-                        <li className="nav-item">
-                            <Link to={"/user"} className="nav-link">
-                                User
-                            </Link>
-                        </li>
-                    )}
+                    {/*{currentUser && (*/}
+                    {/*    <li className="nav-item">*/}
+                    {/*        <Link to={"/user"} className="nav-link">*/}
+                    {/*            User*/}
+                    {/*        </Link>*/}
+                    {/*    </li>*/}
+                    {/*)}*/}
                     {currentUser && (
                         <li className="nav-item">
                             <Link to={"/categories"} className="nav-link">
@@ -95,6 +96,21 @@ const App: React.FC = () => {
                             </Link>
                         </li>
                     )}
+                    {currentUser && (<li className="nav-item">
+                        <Link to={"/things"} className="nav-link">
+                            Things
+                        </Link>
+                    </li>)}
+                    {currentUser && (<li className="nav-item">
+                        <Link to={"/things_list"} className="nav-link">
+                            Things List
+                        </Link>
+                    </li>)}
+                    {currentUser && (<li className="nav-item">
+                        <Link to={"/charts"} className="nav-link">
+                            Charts
+                        </Link>
+                    </li>)}
 
                 </div>
 
@@ -131,15 +147,14 @@ const App: React.FC = () => {
 
             <div className="container mt-3">
                 <Routes>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/home" element={<Home/>}/>
+                    <Route path="/" element={<Categories/>}/>
+                    {/*<Route path="/home" element={<Home/>}/>*/}
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/register" element={<Register/>}/>
                     <Route path="/profile" element={<Profile/>}/>
-                    <Route path="/user" element={<BoardUser/>}/>
-                    <Route path="/mod" element={<BoardModerator/>}/>
-                    <Route path="/admin" element={<BoardAdmin/>}/>
-                    <Route path="/" element={<Categories/>}/>
+                    {/*<Route path="/user" element={<BoardUser/>}/>*/}
+                    {/*<Route path="/mod" element={<BoardModerator/>}/>*/}
+                    {/*<Route path="/admin" element={<BoardAdmin/>}/>*/}
                     <Route path="/categories" element={<Categories/>}/>
                     <Route path="/category/:id" element={<Category/>}/>
                     <Route path="/things/" element={<Things/>}/>
@@ -147,7 +162,8 @@ const App: React.FC = () => {
                     <Route path="/thing/:id" element={<Thing/>}/>
                     <Route path="/category_add" element={<AddCategory/>}/>
                     <Route path="/thing_add" element={<AddThing/>}/>
-                    <Route path="/profile" element={<ThingsList/>}/>
+                    <Route path="/things_list" element={<ThingsList/>}/>
+                    <Route path="/charts" element={<Charts/>}/>
                 </Routes>
             </div>
 
@@ -157,63 +173,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-//
-
-// const App: React.FC = () => {
-//   return (
-//       <div>
-//         <nav className="navbar navbar-expand navbar-dark bg-dark">
-//           <a href="/categories" className="navbar-brand">
-//             Inventory Service
-//           </a>
-//           <div className="navbar-nav mr-auto">
-//             <li className="nav-item2">
-//               <Link to={"/categories"} className="nav-link">
-//                 Categories
-//               </Link>
-//             </li>
-//             <li className="nav-item">
-//               <Link to={"/things"} className="nav-link">
-//                 Things
-//               </Link>
-//             </li>
-//             <li className="nav-item">
-//               <Link to={"/thing_add"} className="nav-link">
-//                 Add Thing
-//               </Link>
-//             </li>
-//             <li className="nav-item">
-//               <Link to={"/profile"} className="nav-link">
-//                 User profile
-//               </Link>
-//             </li>
-//             <li className="nav-item">
-//               <Link to={"/profile"} className="nav-link">
-//                 User profile
-//               </Link>
-//             </li>
-//             <li className="nav-item">
-//               <Link to={"/profile"} className="nav-link">
-//                 User profile
-//               </Link>
-//             </li>
-//           </div>
-//         </nav>
-//
-//         <div className="container mt-3">
-//           <Routes>
-//             <Route path="/" element={<Categories/>} />
-//             <Route path="/categories" element={<Categories/>} />
-//             <Route path="/category/:id" element={<Category/>} />
-//             <Route path="/things/" element={<Things/>} />
-//             <Route path="/things/:id" element={<Things/>} />
-//             <Route path="/thing/:id" element={<Thing/>} />
-//             <Route path="/category_add" element={<AddCategory/>} />
-//             <Route path="/thing_add" element={<AddThing/>} />
-//             <Route path="/profile" element={<ThingsList/>} />
-//           </Routes>
-//         </div>
-//       </div>
-//   );
-// }

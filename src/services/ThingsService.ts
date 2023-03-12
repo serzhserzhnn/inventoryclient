@@ -9,8 +9,8 @@ const getAllFromCategory = (id: any) => {
     return http.get<Array<IThingsData>>(`/things/category/${id}`);
 };
 
-const findByName = (name: string) => {
-    return http.get<Array<IThingsData>>(`/things?name=${name}`);
+const findByName = (name: string) => { //, category: number
+    return http.get<Array<IThingsData>>(`/things?name=${name}`); //?category=${category}
 };
 
 const get = (id: any) => {
