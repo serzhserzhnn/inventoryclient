@@ -67,7 +67,7 @@ const Thing: React.FC = () => {
             });
     };
 
-    const deleteCategory = () => {
+    const deleteThing = () => {
         ThingDataService.remove(currentThing.id)
             .then((response: any) => {
                 console.log(response.data);
@@ -98,7 +98,7 @@ const Thing: React.FC = () => {
                         </div>
                     </form>
 
-                    <button className="badge badge-danger mr-2" onClick={deleteCategory}>
+                    <button className="badge badge-danger mr-2" onClick={deleteThing}>
                         Delete
                     </button>
 

@@ -103,7 +103,7 @@ const App: React.FC = () => {
                     </li>)}
                     {currentUser && (<li className="nav-item">
                         <Link to={"/things_list"} className="nav-link">
-                            Things List
+                            List of Things
                         </Link>
                     </li>)}
                     {currentUser && (<li className="nav-item">
