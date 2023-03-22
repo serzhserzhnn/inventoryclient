@@ -1,5 +1,6 @@
 export default interface IThingData {
-    id?: any | null,
+    id: string,
+    thingId?: any | null,
     name: string,
     description: string//,
     // location: string,

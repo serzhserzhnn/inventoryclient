@@ -153,9 +153,8 @@ const Things: React.FC = () => {
                     </div>
                 </div>
             );
-
         else return (<div>
-            <h5>В разделе вещи отсутствуют.&nbsp;<a href="/thing_add"> Добавить?</a></h5>
+            <h5>Things not found in search.&nbsp;<a href="/thing_add"> Create?</a></h5>
         </div>)
     } else return (<div>
         <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
