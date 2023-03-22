@@ -1,9 +1,11 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate, Link} from 'react-router-dom';
 
-import ThingsDataService from "../../services/ThingsListService";
+import ThingsListDataService from "../../services/ThingsListService";
 import IThingsData from '../../types/ThingList';
 import {getCurrentUser} from "../../services/authservice/auth.service";
+import IThingCheckData from "../../types/ThingCheck";
+import ThingDataService from "../../services/ThingsService";
 
 const ThingsList: React.FC = () => {
     const {id} = useParams();
@@ -24,7 +26,8 @@ const ThingsList: React.FC = () => {
     };
 
     const retrieveThings = () => {
-        ThingsDataService.getAll(currentUser.id)
+        if(currentUser !== null)
+        ThingsListDataService.getAll(currentUser.id)
             .then((response: any) => {
                 setThings(response.data);
                 console.log(response.data);
@@ -32,6 +35,21 @@ const ThingsList: React.FC = () => {
             .catch((e: Error) => {
                 console.log(e);
             });
+    };
+
+    const deleteThing = (id: any) => {
+        ThingsListDataService.remove(id)
+            .then((response: any) => {
+                navigate("/things_list");
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+    };
+
+    const sendMail = () => {
+        ThingsListDataService.sendMail(currentUser.id);
     };
 
     const refreshList = () => {
@@ -47,75 +65,86 @@ const ThingsList: React.FC = () => {
 
     const currentUser = getCurrentUser();
 
-    //if (things.length !== 0)
-    return (
-        <div className="list row">
-            <div className="col-md-8">
-                <div className="input-group mb-3">
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search by name"
-                        value={searchName}
-                        onChange={onChangeSearchName}
-                    />
-                </div>
-            </div>
-            <div className="card text-center">
-                <div className="card-body">
-                    <h5 className="card-title">Add Thing</h5>
-                    {/*<p className="card-text">View all things.</p>*/}
-                    <a href="/thing_add" className="btn btn-primary">Create thing </a>
-                </div>
-            </div>
-            <div className="col-md-6">
-                <h4>Things List</h4>
+    // const initialThingState = {
+    //     check_thing: ""
+    // };
+    // const [currentThingCheck, setCurrentThingCheck] = useState<IThingCheckData>(initialThingState);
+    //
+    // const getThingCheck = (id: any) => {
+    //     ThingDataService.chk(id)
+    //         .then((response: any) => {
+    //             setCurrentThingCheck(response.data);
+    //             //console.log(response.data);
+    //         })
+    //         .catch((e: Error) => {
+    //             //console.log(e);
+    //         });
+    // };
+    //
+    // const color = "text-danger"
+    // function getName(firstName: string, lastName?: string) {
+    //     getThingCheck(firstName)
+    //     return currentThingCheck.check_thing
+    // }
 
-                <table className="table table-dark">
-                    <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">name</th>
-                        <th scope="col">description</th>
-                        <th scope="col">category</th>
-                        <th scope="col">user</th>
-                        <th scope="col">action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {things &&
-                    things.map((thing, index) => (
-                        <tr>
-                            <th scope="row">{thing.id}</th>
-                            <td>{thing.name}</td>
-                            <td>{thing.description}</td>
-                            <td>{thing.category}</td>
-                            <td>{thing.user}</td>
-                            <td>
-                                <Link
-                                    to={"/thing/" + thing.id}
-                                    className="badge badge-warning"
-                                >
-                                    View
-                                </Link>
-                                <Link
-                                    to={"/thing/" + thing.id}
-                                    className="badge badge-warning"
-                                >
-                                    Edit
-                                </Link>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-
-    // else return (<div>
-    //     <h5>Список пуст.&nbsp;<a href="/things"> Выбрать?</a></h5>
-    // </div>)
+    if (currentUser !== null) {
+        if (things.length !== 0)
+            return (
+                <div className="list row">
+                    <div className="col-md-6">
+                        <h4>Things List</h4>
+                        <button className="badge badge-success"
+                                onClick={() => sendMail()}>
+                            sendMail
+                        </button>
+                        <table className="table table-dark">
+                            <thead>
+                            <tr>
+                                <th scope="col">id</th>
+                                <th scope="col">thingId</th>
+                                <th scope="col">name</th>
+                                <th scope="col">description</th>
+                                <th scope="col">category</th>
+                                <th scope="col">user</th>
+                                <th scope="col">action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {things &&
+                            things.map((thing, index) => (
+                                <tr>
+                                    {/*className={getName(thing.thingId)}*/}
+                                    <th scope="row">{thing.id}</th>
+                                    <th scope="row">{thing.thingId}</th>
+                                    <td>{thing.name}</td>
+                                    <td>{thing.description}</td>
+                                    <td>{thing.category}</td>
+                                    <td>{thing.user}</td>
+                                    <td>
+                                        <Link
+                                            to={"/thing/" + thing.thingId}
+                                            className="badge badge-warning"
+                                        >
+                                            View
+                                        </Link>
+                                        <button className="badge badge-danger mr-2"
+                                                onClick={() => deleteThing(thing.id)}>
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        else return (<div>
+            <h5>List is empty.&nbsp;<a href="/things"> Add Things?</a></h5>
+        </div>)
+    } else return (<div>
+        <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
+    </div>);
 };
 
 export default ThingsList;

@@ -13,10 +13,15 @@ const removeAll = () => {
     return http.delete<any>(`/things_list`);
 };
 
+const sendMail = (user: any) => {
+    return http.get(`/things_list/sendmail?user=${user}`);
+};
+
 const ThingsListService = {
     getAll,
     remove,
-    removeAll
+    removeAll,
+    sendMail
 };
 
 export default ThingsListService;

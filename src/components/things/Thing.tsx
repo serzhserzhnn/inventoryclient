@@ -1,8 +1,12 @@
+// https://schema.org/Product
+//     https://schema.org/Thing
+
 import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate} from 'react-router-dom';
 
 import ThingDataService from "../../services/ThingsService";
 import IThingData from "../../types/Thing";
+import {getCurrentUser} from "../../services/authservice/auth.service";
 
 const Thing: React.FC = () => {
     const {id} = useParams();
@@ -39,7 +43,7 @@ const Thing: React.FC = () => {
     };
 
     const updatePublished = (status: boolean) => {
-        var data = {
+        const data = {
             id: currentThing.id,
             name: currentThing.name,
             description: currentThing.description,
@@ -79,6 +83,9 @@ const Thing: React.FC = () => {
             });
     };
 
+    const currentUser = getCurrentUser();
+
+    if (currentUser !== null) {
     return (
         <div>
             {currentThing ? (
@@ -125,6 +132,9 @@ const Thing: React.FC = () => {
             )}
         </div>
     );
+    } else return (<div>
+        <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
+    </div>);
 };
 
 export default Thing;

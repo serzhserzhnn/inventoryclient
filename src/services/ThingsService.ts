@@ -1,5 +1,6 @@
 import http from "../http-common2";
 import IThingsData from "../types/Thing";
+import IThingCheckData from "../types/ThingCheck";
 
 const getAll = () => {
     return http.get<Array<IThingsData>>("/things");
@@ -15,6 +16,10 @@ const findByName = (name: string) => { //, category: number
 
 const get = (id: any) => {
     return http.get<IThingsData>(`/thing/${id}`);
+};
+
+const chk = (id: any) => {
+    return http.get<IThingCheckData>(`/check_thing/${id}`);
 };
 
 const create = (data: IThingsData) => {//(data : IThingsData) => {
@@ -33,6 +38,7 @@ const ThingsService = {
     getAllFromCategory,
     findByName,
     get,
+    chk,
     create,
     update,
     remove
