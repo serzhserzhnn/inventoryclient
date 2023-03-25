@@ -1,10 +1,13 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import CategoryService from "../../services/CategoryService";
 import ICategoryData from '../../types/Category';
 import {getCurrentUser} from "../../services/authservice/auth.service";
+import CategoryDataService from "../../services/CategoryService";
 
 const Categories: React.FC = () => {
+    let navigate = useNavigate();
+
     const [categories, setCategories] = useState<Array<ICategoryData>>([]);
     const [currentCategory, setCurrentCategory] = useState<ICategoryData | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
@@ -29,12 +32,26 @@ const Categories: React.FC = () => {
         setCurrentIndex(index);
     };
 
+    const deleteCategory = (id: any) => {
+        CategoryDataService.remove(id)
+            .then((response: any) => {
+                console.log(response.data);
+                navigate("/categories");
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+    };
+
     const currentUser = getCurrentUser();
 
     let adminUser = false;
 
-    if (currentUser !== null) {adminUser = currentUser.roles.includes("ROLE_MODERATOR") ||
-        currentUser.roles.includes("ROLE_ADMIN");}
+    if (currentUser !== null) {
+        adminUser = currentUser.roles.includes("ROLE_MODERATOR") ||
+            currentUser.roles.includes("ROLE_ADMIN");
+    }
 
     if (currentUser !== null)
         return (
@@ -70,6 +87,11 @@ const Categories: React.FC = () => {
                                 >
                                     Things from Category
                                 </Link>
+                                {adminUser &&
+                                <button className="badge badge-danger mr-2"
+                                        onClick={() => deleteCategory(category.id)}>
+                                    Delete
+                                </button>}
                             </div>
                         </div>
                     ))}
