@@ -1,4 +1,6 @@
 import axios from "axios";
+import http from "../../http-common2";
+import IUserData from "../../types/User";
 
 const API_URL = "http://localhost:8097/api/auth/";
 
@@ -35,3 +37,23 @@ export const getCurrentUser = () => {
 
     return null;
 };
+
+const getAll = () => {
+    return http.get<Array<IUserData>>(API_URL + "users");
+};
+
+const findByName = (name: string) => { //, category: number
+    return http.get<Array<IUserData>>(API_URL + `users?name=${name}`); //?category=${category}
+};
+
+const remove = (id: any) => {
+    return http.delete<any>(API_URL + `users/${id}`);
+};
+
+const UsersService = {
+    getAll,
+    findByName,
+    remove
+};
+
+export default UsersService;

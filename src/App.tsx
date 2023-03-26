@@ -24,6 +24,7 @@ import BoardAdmin from "./components/authentication/BoardAdmin";
 
 import EventBus from "./common/EventBus";
 import Charts from "./components/charts/Charts";
+import Users from "./components/users/Users";
 
 const App: React.FC = () => {
     const [showModeratorBoard, setShowModeratorBoard] = useState<boolean>(false);
@@ -111,7 +112,13 @@ const App: React.FC = () => {
                             Charts
                         </Link>
                     </li>)}
-
+                    {showAdminBoard && (
+                        <li className="nav-item">
+                            <Link to={"/users"} className="nav-link">
+                                Users
+                            </Link>
+                        </li>
+                    )}
                 </div>
 
                 {currentUser ? (
@@ -164,6 +171,7 @@ const App: React.FC = () => {
                     <Route path="/thing_add" element={<AddThing/>}/>
                     <Route path="/things_list" element={<ThingsList/>}/>
                     <Route path="/charts" element={<Charts/>}/>
+                    <Route path="/users" element={<Users/>}/>
                 </Routes>
             </div>
 
