@@ -1,42 +1,70 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
-import {useParams, useNavigate, Link} from 'react-router-dom';
+import {useParams, Link} from 'react-router-dom';
 
 import ThingsDataService from "../../services/ThingsService";
 import IThingsData from '../../types/Thing';
 import {getCurrentUser} from "../../services/authservice/auth.service";
+import {Pagination} from "@material-ui/lab";
 
 const Things: React.FC = () => {
     const {id} = useParams();
-    let navigate = useNavigate();
 
     const [things, setThings] = useState<Array<IThingsData>>([]);
-    const [currentThing, setCurrentThing] = useState<IThingsData | null>(null);
-    const [currentIndex, setCurrentIndex] = useState<number>(-1);
-    const [searchName, setSearchName] = useState<string>("");
+    const [searchName, setSearchName] = useState("");
 
-    useEffect(() => {
-        retrieveThings(id);
-    }, [id]);
+    const [page, setPage] = useState(1);
+    const [count, setCount] = useState(0);
+    const [pageSize, setPageSize] = useState(3);
+
+    const pageSizes = [3, 6, 9];
 
     const onChangeSearchName = (e: ChangeEvent<HTMLInputElement>) => {
         const searchName = e.target.value;
         setSearchName(searchName);
     };
 
+    const getRequestParams = (searchName: any, page: number, pageSize: any) => {
+        let params = {};
+
+        if (searchName) {
+            // @ts-ignore
+            params["name"] = searchName;
+        }
+
+        if (page) {
+            // @ts-ignore
+            params["page"] = page - 1;
+        }
+
+        if (pageSize) {
+            // @ts-ignore
+            params["size"] = pageSize;
+        }
+
+        return params;
+    };
+
     const retrieveThings = (id?: string | undefined) => {
+
+        const params = getRequestParams(searchName, page, pageSize);
+
         if (typeof id !== "undefined")
-            ThingsDataService.getAllFromCategory(id)
-                .then((response: any) => {
-                    setThings(response.data);
+            ThingsDataService.getAllFromCategory(id, params)
+                .then((response) => {
+                    const {things, totalPages} = response.data;
+                    setThings(things);
+                    setCount(totalPages);
                     console.log(response.data);
                 })
                 .catch((e: Error) => {
                     console.log(e);
                 });
         else
-            ThingsDataService.getAll()
-                .then((response: any) => {
-                    setThings(response.data);
+            ThingsDataService.getAll(params)
+                .then((response) => {
+                    const {things, totalPages} = response.data;
+                    setThings(things);
+                    setCount(totalPages);
                     console.log(response.data);
                 })
                 .catch((e: Error) => {
@@ -44,46 +72,23 @@ const Things: React.FC = () => {
                 });
     };
 
-    const refreshList = () => {
-        retrieveThings();
-        setCurrentThing(null);
-        setCurrentIndex(-1);
+    useEffect(() => {
+        retrieveThings(id);
+    }, [id, page, pageSize]);
+
+    const handlePageChange = (event: any, value: React.SetStateAction<number>) => {
+        setPage(value);
     };
 
-    const setActiveThing = (thing: IThingsData, index: number) => {
-        setCurrentThing(thing);
-        setCurrentIndex(index);
-    };
-
-    const findByName = () => {
-        if (typeof id !== "undefined")
-            ThingsDataService.findByName(searchName)
-                .then((response: any) => {
-                    setThings(response.data);
-                    setCurrentThing(null);
-                    setCurrentIndex(-1);
-                    console.log(response.data);
-                })
-                .catch((e: Error) => {
-                    console.log(e);
-                });
-        else
-            ThingsDataService.findByName(searchName)
-                .then((response: any) => {
-                    setThings(response.data);
-                    setCurrentThing(null);
-                    setCurrentIndex(-1);
-                    console.log(response.data);
-                })
-                .catch((e: Error) => {
-                    console.log(e);
-                });
+    const handlePageSizeChange = (event: { target: { value: React.SetStateAction<unknown>; }; }) => {
+        setPageSize(event.target.value as number);
+        setPage(1);
     };
 
     const currentUser = getCurrentUser();
 
     if (currentUser !== null) {
-        if (things.length !== 0)
+        if (things.length !== 0) {
             return (
                 <div className="list row">
                     <div className="col-md-8">
@@ -99,7 +104,7 @@ const Things: React.FC = () => {
                                 <button
                                     className="btn btn-outline-secondary"
                                     type="button"
-                                    onClick={findByName}
+                                    onClick={() => retrieveThings(id)}
                                 >
                                     Search
                                 </button>
@@ -109,12 +114,33 @@ const Things: React.FC = () => {
                     <div className="card text-center">
                         <div className="card-body">
                             <h5 className="card-title">Add Thing</h5>
-                            {/*<p className="card-text">View all things.</p>*/}
                             <a href="/thing_add" className="btn btn-primary">Create thing </a>
                         </div>
                     </div>
                     <div className="col-md-6">
                         <h4>Things List</h4>
+
+                        <div className="mt-3">
+                            {"Items per Page: "}
+                            <select onChange={handlePageSizeChange} value={pageSize}>
+                                {pageSizes.map((size) => (
+                                    <option key={size} value={size}>
+                                        {size}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <Pagination
+                                className="my-3"
+                                count={count}
+                                page={page}
+                                siblingCount={1}
+                                boundaryCount={1}
+                                variant="outlined"
+                                shape="rounded"
+                                onChange={handlePageChange}
+                            />
+                        </div>
 
                         <table className="table table-dark">
                             <thead>
@@ -153,7 +179,7 @@ const Things: React.FC = () => {
                     </div>
                 </div>
             );
-        else return (<div>
+        } else return (<div>
             <h5>Things not found in search.&nbsp;<a href="/thing_add"> Create?</a></h5>
         </div>)
     } else return (<div>

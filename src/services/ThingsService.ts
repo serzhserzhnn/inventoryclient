@@ -2,16 +2,20 @@ import http from "../http-common2";
 import IThingsData from "../types/Thing";
 import IThingCheckData from "../types/ThingCheck";
 
-const getAll = () => {
-    return http.get<Array<IThingsData>>("/things");
+const getAllChats = () => {
+    return http.get<Array<IThingsData>>("/things_chats");
 };
 
-const getAllFromCategory = (id: any) => {
-    return http.get<Array<IThingsData>>(`/things/category/${id}`);
+const getAll = (params: any) => {
+    return http.get("/things", {params});
 };
 
-const findByName = (name: string) => { //, category: number
-    return http.get<Array<IThingsData>>(`/things?name=${name}`); //?category=${category}
+const getAllFromCategory = (id: any, params: any) => {
+    return http.get(`/things/category/${id}`, {params});
+};
+
+const findByName = (name: string, params: any) => {
+    return http.get(`/things?name=${name}`, {params}); //?category=${category}
 };
 
 const get = (id: any) => {
@@ -22,8 +26,9 @@ const chk = (id: any) => {
     return http.get<IThingCheckData>(`/check_thing/${id}`);
 };
 
-const create = (data: IThingsData) => {//(data : IThingsData) => {
-    return http.post<IThingsData>("/thing", data);
+const create = (data: IThingsData) => {
+    console.log("data of service: " + data.name, data.description, data.category)
+    return http.post<IThingsData>("/thing_add", data);
 }
 const update = (id: any, data: IThingsData) => {
     return http.put<any>(`/thing/${id}`, data);
@@ -34,6 +39,7 @@ const remove = (id: any) => {
 };
 
 const ThingsService = {
+    getAllChats,
     getAll,
     getAllFromCategory,
     findByName,
