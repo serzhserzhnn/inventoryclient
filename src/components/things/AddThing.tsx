@@ -1,121 +1,147 @@
-import React, {useState, ChangeEvent} from "react";
+import React, {useState} from "react";
 import ThingDataService from "../../services/ThingsService";
 import IThingData from '../../types/Thing';
+import * as Yup from 'yup';
+import {useNavigate} from "react-router-dom";
+import {ErrorMessage, Field, Form, Formik} from "formik";
 
 const AddThing: React.FC = () => {
-    const initialThingState = {
-        id: null,
+    let navigate = useNavigate();
+
+    const [successful, setSuccessful] = useState<boolean>(false);
+    const [message, setMessage] = useState<string>("");
+
+    const initialValues: IThingData = {
         name: "",
         description: "",
         category: 0
     };
-    const [thing, setThing] = useState<IThingData>(initialThingState);
-    const [submitted, setSubmitted] = useState<boolean>(false);
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = event.target;
-        setThing({...thing, [name]: value});
-    };
+    const validationSchema = Yup.object().shape({
+        name: Yup.string()
+            .test(
+                "len",
+                "The name must be between 2 and 25 characters.",
+                (val: any) =>
+                    val &&
+                    val.toString().length >= 2 &&
+                    val.toString().length <= 25
+            ).required('name is required'),
+        description: Yup.string()
+            .required('description is required'),
+        category: Yup.number()
+            .min(1, "Must be more than 1 characters")
+            .required('category is required')
+    });
 
-    const saveThing = () => {
-        let data = {
-            name: thing.name,
-            description: thing.description,
-            category: thing.category
-        };
+    const handleRegister = (formValue: IThingData) => {
+        const {name, description, category} = formValue;
 
-        ThingDataService.create(data)
-            .then((response: any) => {
-                setThing({
-                    id: response.data.id,
-                    name: response.data.name,
-                    description: response.data.description,
-                    category: response.data.category
-                });
-                setSubmitted(true);
-                console.log(response.data);
-            })
-            .catch((e: Error) => {
-                console.log(e);
-            });
-    };
+        ThingDataService.create(name, description, category).then(
+            (response) => {
+                setMessage(response.data.message);
+                setSuccessful(true);
+                navigate("/thing_add");
+                window.location.reload();
+            },
+            (error) => {
+                const resMessage =
+                    (error.response &&
+                        error.response.data &&
+                        error.response.data.message) ||
+                    error.message ||
+                    error.toString();
 
-    const newThing = () => {
-        setThing(initialThingState);
-        setSubmitted(false);
+                setMessage(resMessage);
+                setSuccessful(false);
+            }
+        );
     };
 
     return (
         <div className="submit-form">
-            {submitted ? (
-                <div>
-                    <h4>You submitted successfully!</h4>
-                    <button className="btn btn-success" onClick={newThing}>
-                        Add
-                    </button>
-                </div>
-            ) : (
-                <div>
-                    <div className="form-group">
-                        <label htmlFor="name">Name</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="name"
-                            required
-                            value={thing.name}
-                            onChange={handleInputChange}
-                            name="name"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="name">Description</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="description"
-                            required
-                            value={thing.description}
-                            onChange={handleInputChange}
-                            name="description"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="name">Category</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="category"
-                            required
-                            value={thing.category}
-                            onChange={handleInputChange}
-                            name="category"
-                        />
-                    </div>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={validationSchema}
+                onSubmit={handleRegister}
+            >
+                <Form>
+                    {!successful && (
+                        <div>
+                            <div className="form-group">
+                                <label htmlFor="name"> name </label>
+                                <Field name="name" type="text" className="form-control"/>
+                                <ErrorMessage
+                                    name="name"
+                                    component="div"
+                                    className="alert alert-danger"
+                                />
+                            </div>
 
-                    <div className="form-group">
-                        <label htmlFor="name">Category</label>
-                        <select
-                            value={thing.category}
-                            className="form-control"
-                            id="category"
-                            required
-                            // onChange={handleInputChange}
-                            name="category">
-                            <option selected>Выберите категорию</option>
-                            <option value={1}>Лекарства</option>
-                            <option value={2}>Инструменты</option>
-                            <option value={3}>Прочее</option>
-                        </select>
-                    </div>
+                            <div className="form-group">
+                                <label htmlFor="description"> description </label>
+                                <Field name="description" type="text" className="form-control"/>
+                                <ErrorMessage
+                                    name="description"
+                                    component="div"
+                                    className="alert alert-danger"
+                                />
+                            </div>
 
-                    <button onClick={saveThing} className="btn btn-success">
-                        Submit
-                    </button>
-                </div>
-            )}
+                            <div className="form-group">
+                                <label htmlFor="category"> category </label>
+                                <Field name="category" type="text" className="form-control"/>
+                                <ErrorMessage
+                                    name="category"
+                                    component="div"
+                                    className="alert alert-danger"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <button type="submit" className="btn btn-primary btn-block">Submit</button>
+                            </div>
+                            <button type="button"
+                                    // onClick={() => reset()}
+                                    className="btn btn-primary btn-block"
+                            >
+                                Reset
+                            </button>
+                        </div>
+                    )}
+
+                    {message && (
+                        <div className="form-group">
+                            <div
+                                className={
+                                    successful ? "alert alert-success" : "alert alert-danger"
+                                }
+                                role="alert"
+                            >
+                                {message}
+                            </div>
+                        </div>
+                    )}
+                </Form>
+            </Formik>
         </div>
     );
+
+    //                 <div className="form-group">
+    //                     <label htmlFor="name">Category</label>
+    //                     <select
+    //                         value={thing.category}
+    //                         className="form-control"
+    //                         id="category"
+    //                         required
+    //                         // onChange={handleInputChange}
+    //                         name="category">
+    //                         <option selected>Выберите категорию</option>
+    //                         <option value={1}>Лекарства</option>
+    //                         <option value={2}>Инструменты</option>
+    //                         <option value={3}>Прочее</option>
+    //                     </select>
+    //                 </div>
 };
 
 export default AddThing;

@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent} from "react";
+import React, {useState} from "react";
 import {create} from "../../services/CategoryService";
 import ICategoryData from '../../types/Category';
 import * as Yup from "yup";

@@ -42,29 +42,12 @@ const Thing: React.FC = () => {
         setCurrentThing({...currentThing, [name]: value});
     };
 
-    const updatePublished = (status: boolean) => {
-        const data = {
-            id: currentThing.id,
-            name: currentThing.name,
-            description: currentThing.description,
-            category: currentThing.category
-        };
-
-        ThingDataService.update(currentThing.id, data)
-            .then((response: any) => {
-                console.log(response.data);
-                setMessage("The status was updated successfully!");
-            })
-            .catch((e: Error) => {
-                console.log(e);
-            });
-    };
-
     const updateThing = () => {
         ThingDataService.update(currentThing.id, currentThing)
             .then((response: any) => {
                 console.log(response.data);
                 setMessage("The Thing was updated successfully!");
+                navigate(-1);
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -75,7 +58,6 @@ const Thing: React.FC = () => {
         ThingDataService.remove(currentThing.id)
             .then((response: any) => {
                 console.log(response.data);
-                //navigate("/things");
                 navigate(-1);
             })
             .catch((e: Error) => {
@@ -86,52 +68,69 @@ const Thing: React.FC = () => {
     const currentUser = getCurrentUser();
 
     if (currentUser !== null) {
-    return (
-        <div>
-            {currentThing ? (
-                <div className="edit-form">
-                    <h4>Thing</h4>
-                    <form>
-                        <div className="form-group">
-                            <label htmlFor="title">Title</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                id="title"
-                                name="title"
-                                value={currentThing.name}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                    </form>
+        return (
+            <div>
+                {currentThing ? (
+                    <div className="edit-form">
+                        <h4>Thing</h4>
+                        <form>
+                            <div className="form-group">
+                                <label htmlFor="name">name</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="name"
+                                    name="name"
+                                    value={currentThing.name}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="description">description</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="description"
+                                    name="description"
+                                    value={currentThing.description}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="category">category</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="category"
+                                    name="category"
+                                    value={currentThing.category}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                        </form>
 
-                    <button className="badge badge-danger mr-2" onClick={deleteThing}>
-                        Delete
-                    </button>
+                        <button className="badge badge-danger mr-2" onClick={deleteThing}>
+                            Delete
+                        </button>
 
-                    <button
-                        type="submit"
-                        className="badge badge-success"
-                        onClick={updateThing}
-                    >
-                        Update
-                    </button>
-                    <p>{message}</p>
-                    <br/>
-                    <div>
-                        <label>Наименование: </label>
-                        {currentThing.name}
+                        <button
+                            type="submit"
+                            className="badge badge-success"
+                            onClick={updateThing}
+                        >
+                            Update
+                        </button>
+                        <p>{message}</p>
+                        <br/>
                     </div>
-
-                </div>
-            ) : (
-                <div>
-                    <br/>
-                    <p>Please click on a Thing...</p>
-                </div>
-            )}
-        </div>
-    );
+                ) : (
+                    <div>
+                        <br/>
+                        <p>Please click on a Thing...</p>
+                    </div>
+                )}
+            </div>
+        );
     } else return (<div>
         <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
     </div>);

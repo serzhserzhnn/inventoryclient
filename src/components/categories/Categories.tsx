@@ -1,6 +1,5 @@
-import React, {useState, useEffect, ChangeEvent} from "react";
+import React, {useState, useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import CategoryService from "../../services/CategoryService";
 import ICategoryData from '../../types/Category';
 import {getCurrentUser} from "../../services/authservice/auth.service";
 import CategoryDataService from "../../services/CategoryService";
@@ -9,15 +8,13 @@ const Categories: React.FC = () => {
     let navigate = useNavigate();
 
     const [categories, setCategories] = useState<Array<ICategoryData>>([]);
-    const [currentCategory, setCurrentCategory] = useState<ICategoryData | null>(null);
-    const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
     useEffect(() => {
         retrieveCategories();
     }, []);
 
     const retrieveCategories = () => {
-        CategoryService.getAll()
+        CategoryDataService.getAll()
             .then((response: any) => {
                 setCategories(response.data);
                 console.log(response.data);
@@ -25,11 +22,6 @@ const Categories: React.FC = () => {
             .catch((e: Error) => {
                 console.log(e);
             });
-    };
-
-    const setActiveCategory = (category: ICategoryData, index: number) => {
-        setCurrentCategory(category);
-        setCurrentIndex(index);
     };
 
     const deleteCategory = (id: any) => {
@@ -66,13 +58,7 @@ const Categories: React.FC = () => {
                     categories.map((category, index) => (
                         <div className="card">
                             <div className="card-body">
-                                <h5
-                                    // className={
-                                    //     "card-title" + (index === currentIndex ? "active" : "")
-                                    // }
-                                    // onClick={() => setActiveCategory(category, index)}
-                                    // key={"/things/" + category.id}
-                                >
+                                <h5>
                                     {category.name}
                                 </h5>
                                 <Link

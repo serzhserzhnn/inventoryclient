@@ -15,6 +15,7 @@ const Things: React.FC = () => {
     const [page, setPage] = useState(1);
     const [count, setCount] = useState(0);
     const [pageSize, setPageSize] = useState(3);
+    const [totalItems, setTotalItems] = useState(0)
 
     const pageSizes = [3, 6, 9];
 
@@ -51,9 +52,10 @@ const Things: React.FC = () => {
         if (typeof id !== "undefined")
             ThingsDataService.getAllFromCategory(id, params)
                 .then((response) => {
-                    const {things, totalPages} = response.data;
+                    const {things, totalPages, totalItems} = response.data;
                     setThings(things);
                     setCount(totalPages);
+                    setTotalItems(totalItems);
                     console.log(response.data);
                 })
                 .catch((e: Error) => {
@@ -62,14 +64,25 @@ const Things: React.FC = () => {
         else
             ThingsDataService.getAll(params)
                 .then((response) => {
-                    const {things, totalPages} = response.data;
+                    const {things, totalPages, totalItems} = response.data;
                     setThings(things);
                     setCount(totalPages);
+                    setTotalItems(totalItems);
                     console.log(response.data);
                 })
                 .catch((e: Error) => {
                     console.log(e);
                 });
+    };
+
+    const deleteThing = (id: any) => {
+        ThingsDataService.remove(id)
+            .then((response: any) => {
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
     };
 
     useEffect(() => {
@@ -86,6 +99,13 @@ const Things: React.FC = () => {
     };
 
     const currentUser = getCurrentUser();
+
+    let adminUser = false;
+
+    if (currentUser !== null) {
+        adminUser = currentUser.roles.includes("ROLE_MODERATOR") ||
+            currentUser.roles.includes("ROLE_ADMIN");
+    }
 
     if (currentUser !== null) {
         if (things.length !== 0) {
@@ -119,29 +139,30 @@ const Things: React.FC = () => {
                     </div>
                     <div className="col-md-6">
                         <h4>Things List</h4>
+                        {totalItems > 3 && (
+                            <div className="mt-3">
+                                {"Items per Page: "}
+                                <select onChange={handlePageSizeChange} value={pageSize}>
+                                    {pageSizes.map((size) => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                                </select>
 
-                        <div className="mt-3">
-                            {"Items per Page: "}
-                            <select onChange={handlePageSizeChange} value={pageSize}>
-                                {pageSizes.map((size) => (
-                                    <option key={size} value={size}>
-                                        {size}
-                                    </option>
-                                ))}
-                            </select>
+                                <Pagination
+                                    className="my-3"
+                                    count={count}
+                                    page={page}
+                                    siblingCount={1}
+                                    boundaryCount={1}
+                                    variant="outlined"
+                                    shape="rounded"
+                                    onChange={handlePageChange}
+                                />
+                            </div>)
 
-                            <Pagination
-                                className="my-3"
-                                count={count}
-                                page={page}
-                                siblingCount={1}
-                                boundaryCount={1}
-                                variant="outlined"
-                                shape="rounded"
-                                onChange={handlePageChange}
-                            />
-                        </div>
-
+                        }
                         <table className="table table-dark">
                             <thead>
                             <tr>
@@ -171,6 +192,11 @@ const Things: React.FC = () => {
                                         >
                                             Edit
                                         </Link>
+                                        {adminUser &&
+                                        <button className="badge badge-danger mr-2"
+                                                onClick={() => deleteThing(thing.id)}>
+                                            Delete
+                                        </button>}
                                     </td>
                                 </tr>
                             ))}
@@ -179,9 +205,31 @@ const Things: React.FC = () => {
                     </div>
                 </div>
             );
-        } else return (<div>
-            <h5>Things not found in search.&nbsp;<a href="/thing_add"> Create?</a></h5>
-        </div>)
+        } else return (
+            <div>
+                <div className="col-md-8">
+                    <div className="input-group mb-3">
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search by name"
+                            value={searchName}
+                            onChange={onChangeSearchName}
+                        />
+                        <div className="input-group-append">
+                            <button
+                                className="btn btn-outline-secondary"
+                                type="button"
+                                onClick={() => retrieveThings(id)}
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                    <h5>Things not found in search.&nbsp;<a href="/thing_add"> Create?</a></h5>
+                </div>
+
+            </div>)
     } else return (<div>
         <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
     </div>);
