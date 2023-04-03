@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 
 import CategoryDataService from "../../services/CategoryService";
+import {update} from "../../services/CategoryService";
 import ICategoryData from "../../types/Category";
 
 const Category: React.FC = () => {
@@ -36,25 +37,11 @@ const Category: React.FC = () => {
         setCurrentCategory({ ...currentCategory, [name]: value });
     };
 
-    const updatePublished = (status: boolean) => {
-        var data = {
-            id: currentCategory.id,
-            name: currentCategory.name
-        };
-
-        CategoryDataService.update(currentCategory.id, data)
-            .then((response: any) => {
-                console.log(response.data);
-                setMessage("The status was updated successfully!");
-            })
-            .catch((e: Error) => {
-                console.log(e);
-            });
-    };
-
     const updateCategory = () => {
-        CategoryDataService.update(currentCategory.id, currentCategory)
+        update(currentCategory.id, currentCategory)
             .then((response: any) => {
+                console.log(currentCategory.id);
+                console.log(currentCategory);
                 console.log(response.data);
                 setMessage("The Category was updated successfully!");
             })
