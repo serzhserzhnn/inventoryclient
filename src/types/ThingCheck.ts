@@ -1,3 +1,3 @@
 export default interface IThingCheckData{
-    check_thing: string
+    check_thing: any
 }

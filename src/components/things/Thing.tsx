@@ -5,6 +5,7 @@ import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate} from 'react-router-dom';
 
 import ThingDataService from "../../services/ThingsService";
+import ThingListDataService from "../../services/ThingsListService";
 import IThingData from "../../types/Thing";
 import {getCurrentUser} from "../../services/authservice/auth.service";
 
@@ -65,6 +66,18 @@ const Thing: React.FC = () => {
             });
     };
 
+    const addToList =
+        (thingId: string, name: string, description: string, category: number, user: number) => {
+            ThingListDataService.create(thingId, name, description, category, user)
+                .then((response: any) => {
+                    console.log(response.data);
+                    setMessage("The Thing added successfully to List!");
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
+        }
+
     const currentUser = getCurrentUser();
 
     if (currentUser !== null) {
@@ -115,10 +128,17 @@ const Thing: React.FC = () => {
 
                         <button
                             type="submit"
-                            className="badge badge-success"
+                            className="badge badge-success mr-2"
                             onClick={updateThing}
                         >
                             Update
+                        </button>
+                        <button className="badge badge-info mr-2"
+                                onClick={() => addToList(
+                                    currentThing.id, currentThing.name,
+                                    currentThing.description, currentThing.category, currentUser.id)
+                                }>
+                            addToList
                         </button>
                         <p>{message}</p>
                         <br/>

@@ -26,7 +26,7 @@ const get = (id: any) => {
 };
 
 const chk = (id: any) => {
-    return http.get<IThingCheckData>(`/check_thing/${id}`);
+    return http.get<boolean>(`/check_thing/${id}`);
 };
 
 // const create = (data: IThingsData) => {

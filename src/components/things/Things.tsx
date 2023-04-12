@@ -5,6 +5,7 @@ import ThingsDataService from "../../services/ThingsService";
 import IThingsData from '../../types/Thing';
 import {getCurrentUser} from "../../services/authservice/auth.service";
 import {Pagination} from "@material-ui/lab";
+import ThingListDataService from "../../services/ThingsListService";
 
 const Things: React.FC = () => {
     const {id} = useParams();
@@ -98,6 +99,17 @@ const Things: React.FC = () => {
         setPage(1);
     };
 
+    const addToList =
+        (thingId: string, name: string, description: string, category: number, user: number) => {
+            ThingListDataService.create(thingId, name, description, category, user)
+                .then((response: any) => {
+                    console.log(response.data);
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
+        }
+
     const currentUser = getCurrentUser();
 
     let adminUser = false;
@@ -161,7 +173,6 @@ const Things: React.FC = () => {
                                     onChange={handlePageChange}
                                 />
                             </div>)
-
                         }
                         <table className="table table-dark">
                             <thead>
@@ -182,13 +193,13 @@ const Things: React.FC = () => {
                                     <td>
                                         <Link
                                             to={"/thing/" + thing.id}
-                                            className="badge badge-warning"
+                                            className="badge badge-warning mr-2"
                                         >
                                             View
                                         </Link>
                                         <Link
                                             to={"/thing/" + thing.id}
-                                            className="badge badge-warning"
+                                            className="badge badge-warning mr-2"
                                         >
                                             Edit
                                         </Link>
@@ -197,6 +208,13 @@ const Things: React.FC = () => {
                                                 onClick={() => deleteThing(thing.id)}>
                                             Delete
                                         </button>}
+                                        <button className="badge badge-info mr-2"
+                                                onClick={() => addToList(
+                                                    thing.id, thing.name,
+                                                    thing.description, thing.category, currentUser.id)
+                                                }>
+                                            addToList
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

@@ -4,7 +4,6 @@ import {useParams, useNavigate, Link} from 'react-router-dom';
 import ThingsListDataService from "../../services/ThingsListService";
 import IThingsData from '../../types/ThingList';
 import {getCurrentUser} from "../../services/authservice/auth.service";
-import IThingCheckData from "../../types/ThingCheck";
 import ThingDataService from "../../services/ThingsService";
 
 const ThingsList: React.FC = () => {
@@ -16,6 +15,10 @@ const ThingsList: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [searchName, setSearchName] = useState<string>("");
 
+    const [currentThingCheck, setCurrentThingCheck] = useState<boolean>();
+
+    const [message, setMessage] = useState<string>("");
+
     useEffect(() => {
         retrieveThings();
     }, []);
@@ -26,11 +29,39 @@ const ThingsList: React.FC = () => {
     };
 
     const retrieveThings = () => {
-        if(currentUser !== null)
-        ThingsListDataService.getAll(currentUser.id)
+        if (currentUser !== null)
+            ThingsListDataService.getAll(currentUser.id)
+                .then((response: any) => {
+                    const newData = response.data.map((item: any, idx: any) => {
+                        console.log("thingId: " + item.thingId);
+                        if (item.thingId != 5)
+                            return {...item, ...{check_thing: "true"}, ...{color: "text-danger"}}
+                        else return {...item, ...{check_thing: "false"}, ...{color: "text-danger"}};
+                    });
+                    setThings(newData);
+                    console.log((newData))
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
+    };
+
+    const setCategory = new Set<boolean>();
+
+    function logSetElementsC(value1: any) {
+        ThingDataService.chk(value1)
             .then((response: any) => {
-                setThings(response.data);
-                console.log(response.data);
+                console.log(response.data)
+                setCategory.add(response.data)
+                console.log(setCategory.size)
+            })
+    }
+
+    const getThingCheck = (id: any) => {
+        ThingDataService.chk(id)
+            .then((response: any) => {
+                //console.log(response.data)
+                setCurrentThingCheck(response.data)
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -39,6 +70,17 @@ const ThingsList: React.FC = () => {
 
     const deleteThing = (id: any) => {
         ThingsListDataService.remove(id)
+            .then((response: any) => {
+                navigate("/things_list");
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+    };
+
+    const deleteThingAll = (user: any) => {
+        ThingsListDataService.removeAll(user)
             .then((response: any) => {
                 navigate("/things_list");
                 window.location.reload();
@@ -63,29 +105,9 @@ const ThingsList: React.FC = () => {
         setCurrentIndex(index);
     };
 
-    const currentUser = getCurrentUser();
+    let colorThing;
 
-    // const initialThingState = {
-    //     check_thing: ""
-    // };
-    // const [currentThingCheck, setCurrentThingCheck] = useState<IThingCheckData>(initialThingState);
-    //
-    // const getThingCheck = (id: any) => {
-    //     ThingDataService.chk(id)
-    //         .then((response: any) => {
-    //             setCurrentThingCheck(response.data);
-    //             //console.log(response.data);
-    //         })
-    //         .catch((e: Error) => {
-    //             //console.log(e);
-    //         });
-    // };
-    //
-    // const color = "text-danger"
-    // function getName(firstName: string, lastName?: string) {
-    //     getThingCheck(firstName)
-    //     return currentThingCheck.check_thing
-    // }
+    const currentUser = getCurrentUser();
 
     if (currentUser !== null) {
         if (things.length !== 0)
@@ -93,13 +115,19 @@ const ThingsList: React.FC = () => {
                 <div className="list row">
                     <div className="col-md-6">
                         <h4>Things List</h4>
-                        <button className="badge badge-success"
+                        <button className="badge badge-success mr-2"
                                 onClick={() => sendMail()}>
                             sendMail
                         </button>
+                        <button className="badge badge-danger mr-2"
+                                onClick={() => deleteThingAll(currentUser.id)}>
+                            Delete All
+                        </button>
+
                         <table className="table table-dark">
                             <thead>
                             <tr>
+                                <th scope="col">chk</th>
                                 <th scope="col">id</th>
                                 <th scope="col">thingId</th>
                                 <th scope="col">name</th>
@@ -112,28 +140,30 @@ const ThingsList: React.FC = () => {
                             <tbody>
                             {things &&
                             things.map((thing, index) => (
-                                <tr>
-                                    {/*className={getName(thing.thingId)}*/}
-                                    <th scope="row">{thing.id}</th>
-                                    <th scope="row">{thing.thingId}</th>
-                                    <td>{thing.name}</td>
-                                    <td>{thing.description}</td>
-                                    <td>{thing.category}</td>
-                                    <td>{thing.user}</td>
-                                    <td>
-                                        <Link
-                                            to={"/thing/" + thing.thingId}
-                                            className="badge badge-warning"
-                                        >
-                                            View
-                                        </Link>
-                                        <button className="badge badge-danger mr-2"
-                                                onClick={() => deleteThing(thing.id)}>
-                                            Delete
-                                        </button>
-                                    </td>
+                                // {colorThing = thing.color})
+                                <tr className={`text-${thing.color}`}>
+                            {/*className={getName(thing.thingId)}*/}
+                                <th scope="row">{thing.check_thing + "  " + thing.color}</th>
+                                <th scope="row">{thing.id}</th>
+                                <th scope="row">{thing.thingId}</th>
+                                <td>{thing.name}</td>
+                                <td>{thing.description}</td>
+                                <td>{thing.category}</td>
+                                <td>{thing.user}</td>
+                                <td>
+                            {<Link
+                                to={"/thing/" + thing.thingId}
+                                className="badge badge-warning"
+                                >
+                                View
+                                </Link>}
+                                <button className="badge badge-danger mr-2"
+                                onClick={() => deleteThing(thing.id)}>
+                                Delete
+                                </button>
+                                </td>
                                 </tr>
-                            ))}
+                                ))}
                             </tbody>
                         </table>
                     </div>

@@ -8,5 +8,7 @@ export default interface IThingData {
     // quantity?: number,
     // dateStart?: string,
     // dateEnd?: string,
-    user: any
+    user: any,
+    check_thing: boolean,
+    color: any
 }
