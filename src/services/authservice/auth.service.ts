@@ -38,6 +38,10 @@ export const getCurrentUser = () => {
     return null;
 };
 
+export const updatePass = (id: any, password: string) => {
+    return axios.put<any>(API_URL +`user_password_change/${id}`, {password});
+};
+
 const getAll = () => {
     return http.get<Array<IUserData>>(API_URL + "users");
 };
