@@ -17,7 +17,11 @@ const Thing: React.FC = () => {
         id: null,
         name: "",
         description: "",
-        category: 0
+        category: 0,
+        dateEnd: "9999-12-31",
+        location: "",
+        quantity: 1,
+        userId: ""
     };
     const [currentThing, setCurrentThing] = useState<IThingData>(initialThingState);
     const [message, setMessage] = useState<string>("");
@@ -110,6 +114,17 @@ const Thing: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
+                                <label htmlFor="location">location</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="location"
+                                    name="location"
+                                    value={currentThing.location}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="form-group">
                                 <label htmlFor="category">category</label>
                                 <input
                                     type="text"
@@ -117,6 +132,28 @@ const Thing: React.FC = () => {
                                     id="category"
                                     name="category"
                                     value={currentThing.category}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="quantity">quantity</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="quantity"
+                                    name="quantity"
+                                    value={currentThing.quantity}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="dateEnd">expiration date</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="dateEnd"
+                                    name="dateEnd"
+                                    value={new Date(currentThing.dateEnd).toLocaleDateString('sv')}
                                     onChange={handleInputChange}
                                 />
                             </div>

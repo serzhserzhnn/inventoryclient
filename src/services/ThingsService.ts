@@ -33,8 +33,22 @@ const chk = (id: any) => {
 //     return http.post<IThingsData>("/thing_add", data);
 // }
 
-const create = (name: string, description: string, category: number) => {
-    return axios.post(API_URL + "/thing_add", {name, description, category});
+const create = (name: string,
+                description: string,
+                location: string,
+                category: number,
+                quantity: number,
+                dateEnd: string,
+                userId: string) => {
+    return axios.post(API_URL + "/thing_add", {
+        name,
+        description,
+        location,
+        category,
+        quantity,
+        dateEnd,
+        userId
+    });
 };
 
 // const update = (id: any, data: IThingsData) => {
