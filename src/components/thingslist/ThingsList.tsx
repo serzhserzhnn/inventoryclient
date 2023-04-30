@@ -1,6 +1,5 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
 import {useParams, useNavigate, Link} from 'react-router-dom';
-
 import ThingsListDataService from "../../services/ThingsListService";
 import IThingsData from '../../types/ThingList';
 import {getCurrentUser} from "../../services/authservice/auth.service";
@@ -19,6 +18,8 @@ const ThingsList: React.FC = () => {
 
     const [message, setMessage] = useState<string>("");
 
+    const [ids, setIds] = useState<Array<String>>([]);
+
     useEffect(() => {
         retrieveThings();
     }, []);
@@ -32,14 +33,16 @@ const ThingsList: React.FC = () => {
         if (currentUser !== null)
             ThingsListDataService.getAll(currentUser.id)
                 .then((response: any) => {
-                    const newData = response.data.map((item: any, idx: any) => {
-                        console.log("thingId: " + item.thingId);
-                        if (item.thingId != 5)
-                            return {...item, ...{check_thing: "true"}, ...{color: "text-danger"}}
-                        else return {...item, ...{check_thing: "false"}, ...{color: "text-danger"}};
-                    });
-                    setThings(newData);
-                    console.log((newData))
+                    if (response.data.length > 0) {
+                        const newData = response.data.map((item: any, idx: any) => {
+                            //console.log("thingId: " + item.thingId);
+                            if (item.thingId != 5)
+                                return {...item, ...{check_thing: "true"}, ...{color: "text-danger"}}
+                            else return {...item, ...{check_thing: "false"}, ...{color: "text-danger"}};
+                        });
+                        setThings(newData);
+                        console.log((newData))
+                    }
                 })
                 .catch((e: Error) => {
                     console.log(e);
@@ -107,6 +110,35 @@ const ThingsList: React.FC = () => {
 
     let colorThing;
 
+    // This function will be triggered when a checkbox changes its state
+    const selectThing = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedId = event.target.value;
+
+        // Check if "ids" contains "selectedIds"
+        // If true, this checkbox is already checked
+        // Otherwise, it is not selected yet
+        if (ids.includes(selectedId)) {
+            const newIds = ids.filter((id) => id !== selectedId);
+            setIds(newIds);
+        } else {
+            const newIds = [...ids];
+            newIds.push(selectedId);
+            setIds(newIds);
+        }
+    };
+
+    // This function will be called when the "REMOVE SELECTED Things" is clicked
+    const removeSelectedThings = () => {
+        ThingsListDataService.removeSelected(ids)
+            .then((response: any) => {
+                navigate("/things_list");
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+    };
+
     const currentUser = getCurrentUser();
 
     if (currentUser !== null) {
@@ -117,12 +149,16 @@ const ThingsList: React.FC = () => {
                         <h4>Things List</h4>
                         <button className="badge badge-success mr-2"
                                 onClick={() => sendMail()}>
-                            sendMail
+                            send List to Mail
                         </button>
                         <button className="badge badge-danger mr-2"
                                 onClick={() => deleteThingAll(currentUser.id)}>
                             Delete All
                         </button>
+                        {ids.length > 0 && (<button className="badge badge-danger mr-2"
+                                                    onClick={removeSelectedThings}>
+                            Remove Selected Things
+                        </button>)}
 
                         <table className="table table-dark">
                             <thead>
@@ -142,28 +178,33 @@ const ThingsList: React.FC = () => {
                             things.map((thing, index) => (
                                 // {colorThing = thing.color})
                                 <tr className={`text-${thing.color}`}>
-                            {/*className={getName(thing.thingId)}*/}
-                                <th scope="row">{thing.check_thing + "  " + thing.color}</th>
-                                <th scope="row">{thing.id}</th>
-                                <th scope="row">{thing.thingId}</th>
-                                <td>{thing.name}</td>
-                                <td>{thing.description}</td>
-                                <td>{thing.category}</td>
-                                <td>{thing.user}</td>
-                                <td>
-                            {<Link
-                                to={"/thing/" + thing.thingId}
-                                className="badge badge-warning"
-                                >
-                                View
-                                </Link>}
-                                <button className="badge badge-danger mr-2"
-                                onClick={() => deleteThing(thing.id)}>
-                                Delete
-                                </button>
-                                </td>
+                                    {/*className={getName(thing.thingId)}*/}
+                                    <th scope="row">{thing.check_thing + "  " + thing.color}</th>
+                                    <th scope="row">{thing.id}</th>
+                                    <th scope="row">{thing.thingId}</th>
+                                    <td>{thing.name}</td>
+                                    <td>{thing.description}</td>
+                                    <td>{thing.category}</td>
+                                    <td>{thing.user}</td>
+                                    <td>
+                                        {<Link
+                                            to={"/thing/" + thing.thingId}
+                                            className="badge badge-warning"
+                                        >
+                                            View
+                                        </Link>}
+                                        <button className="badge badge-danger mr-2"
+                                                onClick={() => deleteThing(thing.id)}>
+                                            Delete
+                                        </button>
+                                        <input
+                                            type="checkbox"
+                                            value={thing.id}
+                                            onChange={selectThing}
+                                        />
+                                    </td>
                                 </tr>
-                                ))}
+                            ))}
                             </tbody>
                         </table>
                     </div>

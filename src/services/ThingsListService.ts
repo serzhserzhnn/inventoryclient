@@ -20,6 +20,10 @@ const removeAll = (user: any) => {
     return http.delete<any>(`/remove_things_list/${user}`);
 };
 
+const removeSelected = (ids: any) => {
+    return axios.post<any>(API_URL + `/remove_things_selected`, ids);
+};
+
 const sendMail = (user: any) => {
     return http.get(`/things_list/sendmail?user=${user}`);
 };
@@ -29,6 +33,7 @@ const ThingsListService = {
     create,
     remove,
     removeAll,
+    removeSelected,
     sendMail
 };
 
