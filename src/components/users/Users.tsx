@@ -12,6 +12,7 @@ const Users: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<boolean>(false);
     const [users, setUsers] = useState<Array<IUserData>>([]);
     const [searchName, setSearchName] = useState<string>("");
+    const [userID, setUserID] = useState<string>("");
 
     useEffect(() => {
         const user = AuthService.getCurrentUser();
@@ -19,6 +20,7 @@ const Users: React.FC = () => {
         if (user) {
             setShowAdminBoard(user.roles.includes("ROLE_ADMIN"));
             setCurrentUser(!user.roles.includes("ROLE_ADMIN"));
+            setUserID(user.id);
         }
     }, []);
 
@@ -55,6 +57,17 @@ const Users: React.FC = () => {
 
     const deleteUser = (id: any) => {
         UserDataService.remove(id)
+            .then((response: any) => {
+                navigate("/users");
+                window.location.reload();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+    };
+
+    const changeAdmin = (id: any) => {
+        UserDataService.changeAdmin(id)
             .then((response: any) => {
                 navigate("/users");
                 window.location.reload();
@@ -107,18 +120,30 @@ const Users: React.FC = () => {
                                 <th scope="row">{user.id}</th>
                                 <td>{user.username}</td>
                                 <td>{user.email}</td>
-                                <td>role</td>
+                                <td>{user.roles?.map((role: any): any => {
+                                    return role.name + " "
+                                })}</td>
                                 <td>
                                     <Link
                                         to={"/thing/" + user.id}
-                                        className="badge badge-warning"
+                                        className="badge badge-warning mr-2"
                                     >
                                         Edit
                                     </Link>
-                                    <button className="badge badge-danger mr-2"
-                                            onClick={() => deleteUser(user.id)}>
+                                    {userID !== user.id && <button className="badge badge-danger mr-2"
+                                                                   onClick={() => deleteUser(user.id)}>
                                         Delete
-                                    </button>
+                                    </button>}
+                                    {user.roles?.some((role: any): any => role.name === 'ROLE_ADMIN')
+                                    && <button className="badge badge-secondary mr-2"
+                                        onClick={() => changeAdmin(user.id)}
+                                    >
+                                        Remove Admin Role
+                                    </button> || <button className="badge badge-primary mr-2"
+                                        onClick={() => changeAdmin(user.id)}
+                                    >
+                                        Add Admin Role
+                                    </button>}
                                 </td>
                             </tr>
                         ))}

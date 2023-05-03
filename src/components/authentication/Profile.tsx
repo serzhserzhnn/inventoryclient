@@ -11,6 +11,8 @@ const Profile: React.FC = () => {
     const [messageAlert, setMessageAlert] = useState<string>("");
     const [message, setMessage] = useState<string>("");
 
+    const [passField, setPassField] = useState(false);
+
     const initialValues: IUser = {
         email: "", username: "",
         password: ""
@@ -51,6 +53,10 @@ const Profile: React.FC = () => {
         );
     };
 
+    const checkboxHandler = () => {
+        setPassField(!passField);
+    }
+
     if (currentUser !== null)
         return (
             <div>
@@ -76,13 +82,21 @@ const Profile: React.FC = () => {
                         currentUser.roles.map((role: string, index: number) => <li key={index}>{role}</li>)}
                     </ul>
                 </div>
+
+                <div className="container">
+                    <div>
+                        <input type="checkbox" id="passChange" onChange={checkboxHandler}/>
+                        <label htmlFor="passChange"> <strong>change password</strong></label>
+                    </div>
+                </div>
+
                 <div className="submit-form">
                     <Formik
                         initialValues={initialValues}
                         validationSchema={validationSchema}
                         onSubmit={handleRegister}
                     >
-                        <Form>
+                        <Form hidden={!passField}>
                             {!successful && (
                                 <div>
                                     <div className="form-group">

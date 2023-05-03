@@ -42,6 +42,10 @@ export const updatePass = (id: any, password: string) => {
     return axios.put<any>(API_URL +`user_password_change/${id}`, {password});
 };
 
+const changeAdmin = (id: any) => {
+    return axios.put<any>(API_URL +`change_admin_role/${id}`);
+};
+
 const getAll = () => {
     return http.get<Array<IUserData>>(API_URL + "users");
 };
@@ -57,7 +61,8 @@ const remove = (id: any) => {
 const UsersService = {
     getAll,
     findByName,
-    remove
+    remove,
+    changeAdmin
 };
 
 export default UsersService;
