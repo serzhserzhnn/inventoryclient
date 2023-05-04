@@ -1,26 +1,45 @@
 import React, {useState, useEffect, ChangeEvent} from "react";
-import {useParams, useNavigate, Link} from 'react-router-dom';
+import {useParams, Link} from 'react-router-dom';
 import ThingsListDataService from "../../services/ThingsListService";
 import IThingsData from '../../types/ThingList';
 import {getCurrentUser} from "../../services/authservice/auth.service";
 import ThingDataService from "../../services/ThingsService";
+import {message} from "antd";
+import {CSVLink} from "react-csv";
 
 const ThingsList: React.FC = () => {
+
     const {id} = useParams();
-    let navigate = useNavigate();
 
     const [things, setThings] = useState<Array<IThingsData>>([]);
-    const [currentThing, setCurrentThing] = useState<IThingsData | null>(null);
-    const [currentIndex, setCurrentIndex] = useState<number>(-1);
+    const [allThings, setAllThings] = useState<Array<IThingsData>>([]);
     const [searchName, setSearchName] = useState<string>("");
 
-    const [currentThingCheck, setCurrentThingCheck] = useState<boolean>();
-
-    const [message, setMessage] = useState<string>("");
+    const [currentThingCheck, setCurrentThingCheck] = useState<string>("true");
 
     const [ids, setIds] = useState<Array<String>>([]);
 
+    const check = "false";
+
+    const headers = [
+        {label: "Id", key: "id"},
+        {label: "thingId", key: "thingId"},
+        {label: "name", key: "name"},
+        {label: "description", key: "description"},
+        {label: "location", key: "location"},
+        {label: "dateEnd", key: "dateEnd"},
+        {label: "quantity", key: "quantity"}
+    ];
+
+    const csvReport = {
+        data: things,
+        headers: headers,
+        filename: 'List_Report_' + Date.now() + '.csv',
+        separator: ";"
+    };
+
     useEffect(() => {
+        //getAllThings();
         retrieveThings();
     }, []);
 
@@ -29,16 +48,40 @@ const ThingsList: React.FC = () => {
         setSearchName(searchName);
     };
 
+    // const getAllThings = () => {
+    //     ThingDataService.getAllChats()
+    //         .then((response: any) => {
+    //             setAllThings(response.data);
+    //             console.log(response.data);
+    //         })
+    //         .catch((e: Error) => {
+    //             console.log(e);
+    //         });
+    // }
+
+    // const getThingCheck = (id: any) => {
+    //     ThingDataService.chk(id)
+    //         .then((response: any) => {
+    //             console.log("getThingCheck (" + id + ") - " + response.data)
+    //             if (response.data == "false") setCurrentThingCheck("false")
+    //         })
+    //         .catch((e: Error) => {
+    //             console.log(e);
+    //         });
+    // };
+
     const retrieveThings = () => {
         if (currentUser !== null)
             ThingsListDataService.getAll(currentUser.id)
                 .then((response: any) => {
                     if (response.data.length > 0) {
                         const newData = response.data.map((item: any, idx: any) => {
-                            //console.log("thingId: " + item.thingId);
-                            if (item.thingId != 5)
-                                return {...item, ...{check_thing: "true"}, ...{color: "text-danger"}}
-                            else return {...item, ...{check_thing: "false"}, ...{color: "text-danger"}};
+                            return {
+                                ...item, ...{
+                                    check_thing: currentThingCheck
+                                }
+                            }
+                            //else return {...item, ...{check_thing: "false"}, ...{color: "text-danger"}};
                         });
                         setThings(newData);
                         console.log((newData))
@@ -49,33 +92,21 @@ const ThingsList: React.FC = () => {
                 });
     };
 
-    const setCategory = new Set<boolean>();
-
-    function logSetElementsC(value1: any) {
+    function logSetElements(value1: any) {
         ThingDataService.chk(value1)
             .then((response: any) => {
                 console.log(response.data)
-                setCategory.add(response.data)
-                console.log(setCategory.size)
+                return String(response.data)
             })
     }
-
-    const getThingCheck = (id: any) => {
-        ThingDataService.chk(id)
-            .then((response: any) => {
-                //console.log(response.data)
-                setCurrentThingCheck(response.data)
-            })
-            .catch((e: Error) => {
-                console.log(e);
-            });
-    };
 
     const deleteThing = (id: any) => {
         ThingsListDataService.remove(id)
             .then((response: any) => {
-                navigate("/things_list");
-                window.location.reload();
+                retrieveThings();
+                if (things.length -1 < 1) {
+                    window.location.reload();
+                }
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -85,30 +116,12 @@ const ThingsList: React.FC = () => {
     const deleteThingAll = (user: any) => {
         ThingsListDataService.removeAll(user)
             .then((response: any) => {
-                navigate("/things_list");
                 window.location.reload();
             })
             .catch((e: Error) => {
                 console.log(e);
             });
     };
-
-    const sendMail = () => {
-        ThingsListDataService.sendMail(currentUser.id);
-    };
-
-    const refreshList = () => {
-        retrieveThings();
-        setCurrentThing(null);
-        setCurrentIndex(-1);
-    };
-
-    const setActiveThing = (thing: IThingsData, index: number) => {
-        setCurrentThing(thing);
-        setCurrentIndex(index);
-    };
-
-    let colorThing;
 
     // This function will be triggered when a checkbox changes its state
     const selectThing = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,12 +144,15 @@ const ThingsList: React.FC = () => {
     const removeSelectedThings = () => {
         ThingsListDataService.removeSelected(ids)
             .then((response: any) => {
-                navigate("/things_list");
                 window.location.reload();
             })
             .catch((e: Error) => {
                 console.log(e);
             });
+    };
+
+    const sendMail = () => {
+        ThingsListDataService.sendMail(currentUser.id);
     };
 
     const currentUser = getCurrentUser();
@@ -147,6 +163,16 @@ const ThingsList: React.FC = () => {
                 <div className="list row">
                     <div className="col-md-6">
                         <h4>Things List</h4>
+                        <button className="badge badge-success mr-2">
+                            <CSVLink
+                                {...csvReport}
+                                onClick={() => {
+                                    message.success("The file is downloading")
+                                }}
+                            >
+                                Export to CSV
+                            </CSVLink>
+                        </button>
                         <button className="badge badge-success mr-2"
                                 onClick={() => sendMail()}>
                             send List to Mail
@@ -163,7 +189,7 @@ const ThingsList: React.FC = () => {
                         <table className="table table-dark">
                             <thead>
                             <tr>
-                                <th scope="col">chk</th>
+                                {/*<th scope="col">chk</th>*/}
                                 <th scope="col">id</th>
                                 <th scope="col">thingId</th>
                                 <th scope="col">name</th>
@@ -177,11 +203,12 @@ const ThingsList: React.FC = () => {
                             {things &&
                             things.map((thing, index) => (
                                 // {colorThing = thing.color})
-                                <tr className={`text-${thing.color}`}>
-                                    {/*className={getName(thing.thingId)}*/}
-                                    <th scope="row">{thing.check_thing + "  " + thing.color}</th>
+                                <tr className={check == String(thing.check_thing) &&
+                                ("text-danger") || ""}>
                                     <th scope="row">{thing.id}</th>
                                     <th scope="row">{thing.thingId}</th>
+                                    {/*<th className={"false" || ("text-danger")}*/}
+                                    {/*    scope="row">{thing.thingId}</th>*/}
                                     <td>{thing.name}</td>
                                     <td>{thing.description}</td>
                                     <td>{thing.category}</td>

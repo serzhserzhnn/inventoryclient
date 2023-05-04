@@ -9,6 +9,5 @@ export default interface IThingData {
     // dateStart?: string,
     // dateEnd?: string,
     user: any,
-    check_thing: boolean,
-    color: any
+    check_thing: boolean
 }
