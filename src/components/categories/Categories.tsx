@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import ICategoryData from '../../types/Category';
 import {getCurrentUser} from "../../services/authservice/auth.service";
 import CategoryDataService from "../../services/CategoryService";
 
 const Categories: React.FC = () => {
-    let navigate = useNavigate();
 
     const [categories, setCategories] = useState<Array<ICategoryData>>([]);
 
@@ -25,15 +24,15 @@ const Categories: React.FC = () => {
     };
 
     const deleteCategory = (id: any) => {
-        CategoryDataService.remove(id)
-            .then((response: any) => {
-                console.log(response.data);
-                navigate("/categories");
-                window.location.reload();
-            })
-            .catch((e: Error) => {
-                console.log(e);
-            });
+        if (window.confirm("Delete Category?") == true)
+            CategoryDataService.remove(id)
+                .then((response: any) => {
+                    console.log(response.data);
+                    retrieveCategories();
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                });
     };
 
     const currentUser = getCurrentUser();
@@ -63,13 +62,13 @@ const Categories: React.FC = () => {
                                 </h5>
                                 <Link
                                     to={"/category/" + category.id}
-                                    className="badge badge-warning"
+                                    className="badge badge-warning mr-2"
                                 >
                                     Edit
                                 </Link>
                                 <Link
                                     to={"/things/" + category.id}
-                                    className="badge badge-warning"
+                                    className="badge badge-warning mr-2"
                                 >
                                     Things from Category
                                 </Link>

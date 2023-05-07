@@ -71,8 +71,9 @@ const Thing: React.FC = () => {
     };
 
     const addToList =
-        (thingId: string, name: string, description: string, category: number, user: number) => {
-            ThingListDataService.create(thingId, name, description, category, user)
+        (thingId: string, name: string, description: string, location: string,
+         category: number, quantity: number, dateEnd: string, user: number) => {
+            ThingListDataService.create(thingId, name, description, location, category, quantity, dateEnd, user)
                 .then((response: any) => {
                     console.log(response.data);
                     setMessage("The Thing added successfully to List!");
@@ -172,8 +173,9 @@ const Thing: React.FC = () => {
                         </button>
                         <button className="badge badge-info mr-2"
                                 onClick={() => addToList(
-                                    currentThing.id, currentThing.name,
-                                    currentThing.description, currentThing.category, currentUser.id)
+                                    currentThing.id, currentThing.name, currentThing.description,
+                                    currentThing.location, currentThing.category, currentThing.quantity,
+                                    currentThing.dateEnd, currentUser.id)
                                 }>
                             addToList
                         </button>

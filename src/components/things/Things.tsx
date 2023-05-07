@@ -79,7 +79,7 @@ const Things: React.FC = () => {
     const deleteThing = (id: any) => {
         ThingsDataService.remove(id)
             .then((response: any) => {
-                window.location.reload();
+                retrieveThings();
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -100,8 +100,9 @@ const Things: React.FC = () => {
     };
 
     const addToList =
-        (thingId: string, name: string, description: string, category: number, user: number) => {
-            ThingListDataService.create(thingId, name, description, category, user)
+        (thingId: string, name: string, description: string, location: string,
+         category: number, quantity: number, dateEnd: string, user: number) => {
+            ThingListDataService.create(thingId, name, description, location, category, quantity, dateEnd, user)
                 .then((response: any) => {
                     console.log(response.data);
                 })
@@ -210,8 +211,9 @@ const Things: React.FC = () => {
                                         </button>}
                                         <button className="badge badge-info mr-2"
                                                 onClick={() => addToList(
-                                                    thing.id, thing.name,
-                                                    thing.description, thing.category, currentUser.id)
+                                                    thing.id, thing.name, thing.description,
+                                                    thing.location, thing.category, thing.quantity,
+                                                    thing.dateEnd, currentUser.id)
                                                 }>
                                             addToList
                                         </button>

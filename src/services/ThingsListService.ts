@@ -8,8 +8,18 @@ const getAll = (user: any) => {
     return http.get<Array<IThingsData>>(`/things_list?user=${user}`);
 };
 
-const create = (thingId: string, name: string, description: string, category: number, user: number) => {
-    return axios.post<any>(API_URL + `/add_thing`, {thingId, name, description, category, user});
+const create = (thingId: string, name: string, description: string, location: string,
+                category: number, quantity: number, dateEnd: string, user: number) => {
+    return axios.post<any>(API_URL + `/add_thing`, {
+        thingId,
+        name,
+        description,
+        location,
+        category,
+        quantity,
+        dateEnd,
+        user
+    });
 };
 
 const remove = (id: any) => {
