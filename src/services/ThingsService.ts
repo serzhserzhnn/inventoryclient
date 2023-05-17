@@ -17,6 +17,10 @@ const getAllFromCategory = (id: any, params: any) => {
     return http.get(`/things/category/${id}`, {params});
 };
 
+const getCountFromCategory = (id: any) => {
+    return http.get(`/things/category_count/${id}`);
+};
+
 const findByName = (name: string, params: any) => {
     return http.get(`/things?name=${name}`, {params}); //?category=${category}
 };
@@ -26,7 +30,7 @@ const get = (id: any) => {
 };
 
 const chk = (id: any) => {
-    return http.get<boolean>(`/check_thing/${id}`);
+    return http.get<string>(`/check_thing/${id}`);
 };
 
 // const create = (data: IThingsData) => {
@@ -67,6 +71,7 @@ const ThingsService = {
     getAllChats,
     getAll,
     getAllFromCategory,
+    getCountFromCategory,
     findByName,
     get,
     chk,

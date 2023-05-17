@@ -7,6 +7,10 @@ import ThingDataService from "../../services/ThingsService";
 import {message} from "antd";
 import {CSVLink} from "react-csv";
 
+import Modal from "../modals/Modal";
+import {INITIAL_CONFIG} from "../../config-dummy";
+import * as S from "../modals/styles";
+
 const ThingsList: React.FC = () => {
 
     const {id} = useParams();
@@ -104,7 +108,7 @@ const ThingsList: React.FC = () => {
         ThingsListDataService.remove(id)
             .then((response: any) => {
                 retrieveThings();
-                if (things.length -1 < 1) {
+                if (things.length - 1 < 1) {
                     window.location.reload();
                 }
             })
@@ -153,6 +157,13 @@ const ThingsList: React.FC = () => {
 
     const sendMail = () => {
         ThingsListDataService.sendMail(currentUser.id);
+        setShowSend(!showSend)
+    };
+
+    const [showSend, setShowSend] = useState<boolean>(false)
+
+    const btnShow = () => {
+        setShowSend(true)
     };
 
     const currentUser = getCurrentUser();
@@ -177,6 +188,21 @@ const ThingsList: React.FC = () => {
                                 onClick={() => sendMail()}>
                             send List to Mail
                         </button>
+
+                        <button className="badge badge-success mr-2"
+                                onClick={btnShow}>
+                            Modal send List to Mail
+                        </button>
+                        <Modal show={showSend} setShow={setShowSend} config={INITIAL_CONFIG.modal2}>
+                            <p>Send this List to Mail.</p>
+                            <input type='email' placeholder='Email' value={currentUser.email}/>
+                            <S.ModalFooter>
+                                <S.ModalButtonPrimary onClick={() => sendMail()}>
+                                    Send
+                                </S.ModalButtonPrimary>
+                            </S.ModalFooter>
+                        </Modal>
+
                         <button className="badge badge-danger mr-2"
                                 onClick={() => deleteThingAll(currentUser.id)}>
                             Delete All
@@ -238,10 +264,10 @@ const ThingsList: React.FC = () => {
                 </div>
             );
         else return (<div>
-            <h5>List is empty.&nbsp;<a href="/things"> Add Things?</a></h5>
+            <h5>List is empty.&nbsp;<Link to={"/things"}> Add Things?</Link></h5>
         </div>)
     } else return (<div>
-        <h5>Access is denied .&nbsp;<a href="/login"> Зарегистрироваться?</a></h5>
+        <h5>Access is denied .&nbsp;<Link to={"/login"}> Зарегистрироваться?</Link></h5>
     </div>);
 };
 

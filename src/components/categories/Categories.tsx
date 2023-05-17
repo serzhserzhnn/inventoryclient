@@ -3,10 +3,18 @@ import {Link} from "react-router-dom";
 import ICategoryData from '../../types/Category';
 import {getCurrentUser} from "../../services/authservice/auth.service";
 import CategoryDataService from "../../services/CategoryService";
+import ThingsDataService from "../../services/ThingsService";
+
+import {INITIAL_CONFIG} from "../../config-dummy";
+import * as S from "../modals/styles";
+import Modal from "../modals/Modal";
 
 const Categories: React.FC = () => {
 
     const [categories, setCategories] = useState<Array<ICategoryData>>([]);
+    const [count, setCount] = useState<any>("");
+    const [categoryId, setCategoryId] = useState<number>();
+    const [showDelete, setShowDelete] = useState<boolean>(false)
 
     useEffect(() => {
         retrieveCategories();
@@ -24,15 +32,27 @@ const Categories: React.FC = () => {
     };
 
     const deleteCategory = (id: any) => {
-        if (window.confirm("Delete Category?") == true)
-            CategoryDataService.remove(id)
-                .then((response: any) => {
-                    console.log(response.data);
-                    retrieveCategories();
-                })
-                .catch((e: Error) => {
-                    console.log(e);
-                });
+        CategoryDataService.remove(id)
+            .then((response: any) => {
+                console.log(response.data);
+                retrieveCategories();
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+        setShowDelete(!showDelete)
+    };
+
+    const btnShow = (id: any) => {
+        ThingsDataService.getCountFromCategory(id)
+            .then((response: any) => {
+                setCount(response.data.length);
+            })
+            .catch((e: Error) => {
+                console.log(e);
+            });
+        setShowDelete(true);
+        setCategoryId(id);
     };
 
     const currentUser = getCurrentUser();
@@ -74,7 +94,7 @@ const Categories: React.FC = () => {
                                 </Link>
                                 {adminUser &&
                                 <button className="badge badge-danger mr-2"
-                                        onClick={() => deleteCategory(category.id)}>
+                                        onClick={() => btnShow(category.id)}>
                                     Delete
                                 </button>}
                             </div>
@@ -84,18 +104,37 @@ const Categories: React.FC = () => {
                         <div className="card-body">
                             <h5 className="card-title">All Things</h5>
                             <p className="card-text">View all things.</p>
-                            <a href="/things" className="btn btn-primary">Get all things</a>
+                            <Link to={"/things"}
+                                  className="btn btn-primary">
+                                Get all things
+                            </Link>
                         </div>
                     </div>
                     {adminUser &&
                     <div className="card text-center">
                         <div className="card-body">
                             <h5 className="card-title">Add Category</h5>
-                            {/*<p className="card-text">View all things.</p>*/}
-                            <a href="/category_add" className="btn btn-primary">Create category </a>
+                            <Link to={"/category_add"}
+                                  className="btn btn-primary">
+                                Create category
+                            </Link>
                         </div>
                     </div>}
                 </div>
+                <Modal show={showDelete} setShow={setShowDelete} config={INITIAL_CONFIG.modal1}>
+                    <>
+                        {count > 0 && <p>This Category include {count} Things.</p>}
+                    </>
+                    <p>Delete Category?</p>
+                    <S.ModalFooter>
+                        <S.ModalButtonSecondary onClick={() => setShowDelete(!showDelete)}>
+                            Cancel
+                        </S.ModalButtonSecondary>
+                        <S.ModalButtonPrimary onClick={() => deleteCategory(categoryId)}>
+                            Delete
+                        </S.ModalButtonPrimary>
+                    </S.ModalFooter>
+                </Modal>
             </div>
         );
     else return (<div>
